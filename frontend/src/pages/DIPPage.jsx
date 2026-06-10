@@ -66,7 +66,7 @@ export default function DIPPage() {
     formData.append('file', file);
     
     try {
-      const response = await axios.post('http://localhost:5000/process-image', formData, {
+      const response = await axios.post('https://ai-based-skin-disease-detection-b12q.onrender.com/process-image', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setPipelineData(response.data.pipeline || []);
@@ -84,7 +84,7 @@ export default function DIPPage() {
     setError(null);
     
     try {
-      const response = await axios.post('http://localhost:5000/predict', {
+      const response = await axios.post('https://ai-based-skin-disease-detection-b12q.onrender.com/predict', {
         image: preview
       });
       navigate('/dashboard', { state: { result: response.data } });

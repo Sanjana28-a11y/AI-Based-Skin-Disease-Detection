@@ -66,7 +66,7 @@ export default function UploadPage() {
     try {
       // Enforce a minimum display time for the scanning animation
       const minimumDelay = new Promise(resolve => setTimeout(resolve, 3000));
-      const responsePromise = axios.post('http://localhost:5000/predict', formData, {
+      const responsePromise = axios.post('https://ai-based-skin-disease-detection-b12q.onrender.com/predict', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       

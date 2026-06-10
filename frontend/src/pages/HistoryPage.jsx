@@ -14,7 +14,7 @@ export default function HistoryPage() {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/history');
+        const response = await axios.get('https://ai-based-skin-disease-detection-b12q.onrender.com/history');
         setHistory(response.data);
         setIsLoading(false);
       } catch (err) {
