@@ -4,6 +4,10 @@ import { UploadCloud, X, AlertCircle, Layers, Fingerprint, ScanSearch } from 'lu
 import { motion } from 'framer-motion';
 import axios from 'axios';
 
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5000'
+  : 'https://ai-based-skin-disease-detection-b12q.onrender.com';
+
 export default function DIPPage() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -66,7 +70,7 @@ export default function DIPPage() {
     formData.append('file', file);
     
     try {
-      const response = await axios.post('https://ai-based-skin-disease-detection-b12q.onrender.com/process-image', formData, {
+      const response = await axios.post(`${API_BASE_URL}/process-image`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setPipelineData(response.data.pipeline || []);
@@ -84,7 +88,7 @@ export default function DIPPage() {
     setError(null);
     
     try {
-      const response = await axios.post('https://ai-based-skin-disease-detection-b12q.onrender.com/predict', {
+      const response = await axios.post(`${API_BASE_URL}/predict`, {
         image: preview
       });
       navigate('/dashboard', { state: { result: response.data } });

@@ -4,6 +4,10 @@ import axios from 'axios';
 import { History, Search, Calendar, Activity, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5000'
+  : 'https://ai-based-skin-disease-detection-b12q.onrender.com';
+
 export default function HistoryPage() {
   const [history, setHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -14,7 +18,7 @@ export default function HistoryPage() {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await axios.get('https://ai-based-skin-disease-detection-b12q.onrender.com/history');
+        const response = await axios.get(`${API_BASE_URL}/history`);
         setHistory(response.data);
         setIsLoading(false);
       } catch (err) {

@@ -4,6 +4,10 @@ import { UploadCloud, Image as ImageIcon, X, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5000'
+  : 'https://ai-based-skin-disease-detection-b12q.onrender.com';
+
 export default function UploadPage() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -66,7 +70,7 @@ export default function UploadPage() {
     try {
       // Enforce a minimum display time for the scanning animation
       const minimumDelay = new Promise(resolve => setTimeout(resolve, 3000));
-      const responsePromise = axios.post('https://ai-based-skin-disease-detection-b12q.onrender.com/predict', formData, {
+      const responsePromise = axios.post(`${API_BASE_URL}/predict`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       
