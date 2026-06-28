@@ -44,15 +44,22 @@ UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 interpreter = None
+
+print("MODEL PATH:", MODEL_PATH)
+print("FILE EXISTS:", os.path.exists(MODEL_PATH))
+
+if os.path.exists(MODEL_PATH):
+    print("FILE SIZE:", os.path.getsize(MODEL_PATH), "bytes")
+
 if tflite is not None:
     try:
         interpreter = tflite.Interpreter(model_path=MODEL_PATH)
         interpreter.allocate_tensors()
-        print(f"Model loaded successfully from {MODEL_PATH}")
+        print("MODEL LOADED SUCCESSFULLY")
     except Exception as e:
-        print(f"Error loading model: {e}")
+        print("MODEL LOAD ERROR:", e)
 else:
-    print("Error: TFLite interpreter not available.")
+    print("TFLITE NOT AVAILABLE")
 
 classes = [
     'Acne', 'Eczema', 'Lichen', 'Moles',
