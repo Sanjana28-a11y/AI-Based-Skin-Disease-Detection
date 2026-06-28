@@ -13,8 +13,13 @@ from datetime import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import numpy as np
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
+try:
+    import tflite_runtime.interpreter as tflite
+except ImportError:
+    try:
+        import tensorflow.lite as tflite
+    except ImportError:
+        tflite = None
 
 app = Flask(__name__)
 
@@ -33,17 +38,21 @@ history_db = []
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # Ensure the backend strictly loads the user's defined .h5 model file
-MODEL_PATH = os.path.join(BASE_DIR, 'skin_model.h5')
+MODEL_PATH = os.path.join(BASE_DIR, 'skin_model.tflite')
 
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-try:
-    model = load_model(MODEL_PATH)
-    print(f"Model loaded successfully from {MODEL_PATH}")
-except Exception as e:
-    print(f"Error loading model: {e}")
-    model = None
+interpreter = None
+if tflite is not None:
+    try:
+        interpreter = tflite.Interpreter(model_path=MODEL_PATH)
+        interpreter.allocate_tensors()
+        print(f"Model loaded successfully from {MODEL_PATH}")
+    except Exception as e:
+        print(f"Error loading model: {e}")
+else:
+    print("Error: TFLite interpreter not available.")
 
 classes = [
     'Acne', 'Eczema', 'Lichen', 'Moles',
@@ -52,14 +61,23 @@ classes = [
 ]
 
 def predict_image(img_path):
-    if model is None:
-        raise ValueError("Model is not loaded")
+    if interpreter is None:
+        raise ValueError("Model interpreter is not loaded")
         
-    img = image.load_img(img_path, target_size=(256, 256))
-    img_array = image.img_to_array(img)
-    img_array = np.expand_dims(img_array, axis=0) / 255.0
+    img = cv2.imread(img_path)
+    if img is None:
+        raise ValueError(f"Could not read image: {img_path}")
+    img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img_resized = cv2.resize(img_rgb, (256, 256))
+    img_array = np.expand_dims(img_resized, axis=0).astype(np.float32) / 255.0
 
-    prediction = model.predict(img_array)
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+
+    interpreter.set_tensor(input_details[0]['index'], img_array)
+    interpreter.invoke()
+
+    prediction = interpreter.get_tensor(output_details[0]['index'])
     confidence = float(np.max(prediction)) * 100
     class_index = int(np.argmax(prediction))
 
